@@ -1,0 +1,25 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "grpc-lb-client.fullname" . }}-endpointslice-reader
+  labels:
+    {{- include "grpc-lb-client.labels" . | nindent 4 }}
+rules:
+  - apiGroups: ["discovery.k8s.io"]
+    resources: ["endpointslices"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "grpc-lb-client.fullname" . }}-endpointslice-reader
+  labels:
+    {{- include "grpc-lb-client.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "grpc-lb-client.fullname" . }}-endpointslice-reader
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Values.serviceAccount.name | default (include "grpc-lb-client.serviceAccountName" .) }}
+    namespace: {{ .Release.Namespace }}
